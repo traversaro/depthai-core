@@ -37,7 +37,9 @@ endif()
 if(NOT CONFIG_MODE OR (CONFIG_MODE AND NOT DEPTHAI_SHARED_LIBS))
 
     # FP16 for conversions
-    find_package(FP16 ${_QUIET} CONFIG REQUIRED)
+    if(NOT TARGET FP16::fp16)
+        find_package(FP16 ${_QUIET} CONFIG REQUIRED)
+    endif()
 
     # Some packages have different package names depending on which
     # version is installed, if we are using hunter we want to make sure to
@@ -102,7 +104,10 @@ find_package(Threads ${_QUIET} REQUIRED)
 find_package(nlohmann_json 3.6.0 ${_QUIET} CONFIG REQUIRED)
 
 # libnop for serialization
-find_package(libnop ${_QUIET} CONFIG REQUIRED)
+# Support libnop included via FetchContent
+if(NOT TARGET libnop)
+    find_package(libnop ${_QUIET} CONFIG REQUIRED)
+endif()
 
 # XLink
 if(DEPTHAI_XLINK_LOCAL AND (NOT CONFIG_MODE))
@@ -113,7 +118,10 @@ if(DEPTHAI_XLINK_LOCAL AND (NOT CONFIG_MODE))
     unset(_BUILD_SHARED_LIBS_SAVED)
     list(APPEND targets_to_export XLink)
 else()
-    find_package(XLink ${_QUIET} CONFIG REQUIRED HINTS "${CMAKE_CURRENT_LIST_DIR}/XLink" "${CMAKE_CURRENT_LIST_DIR}/../XLink")
+    # Support XLink included via FetchContent
+    if(NOT TARGET XLink)
+        find_package(XLink ${_QUIET} CONFIG REQUIRED HINTS "${CMAKE_CURRENT_LIST_DIR}/XLink" "${CMAKE_CURRENT_LIST_DIR}/../XLink")
+    endif()
 endif()
 
 # OpenCV 4 - (optional, quiet always)
